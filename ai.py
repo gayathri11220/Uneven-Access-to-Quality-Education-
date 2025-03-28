@@ -1,6 +1,6 @@
 import streamlit as st
 import google.generativeai as genai
-import pyttsx3  # For text-to-speech
+from gtts import gTTS  # Google Text-to-Speech library
 import tempfile
 import os
 
@@ -13,9 +13,6 @@ genai.configure(api_key=API_KEY)
 # ✅ Use a supported model name
 model = genai.GenerativeModel('models/gemini-1.5-pro-001')
 chat = model.start_chat()
-
-# 🎤 Initialize the TTS engine
-engine = pyttsx3.init()
 
 def ask_edu_question(question, context):
     prompt = f"""
@@ -33,10 +30,11 @@ def ask_edu_question(question, context):
     return response.text
 
 def text_to_speech(text):
+    # Use gTTS to convert text to speech and save it as an audio file
+    tts = gTTS(text=text, lang='en')
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as fp:
         filename = fp.name
-    engine.save_to_file(text, filename)
-    engine.runAndWait()
+        tts.save(filename)
     return filename
 
 # 🎛️ Streamlit UI
@@ -66,4 +64,3 @@ if st.button("🔍 Get Answer"):
             os.remove(audio_path)
     else:
         st.warning("Please enter a question.")
-
